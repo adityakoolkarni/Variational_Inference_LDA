@@ -24,7 +24,7 @@ def variational_inference(**kwds):
     K = 5
 
     ## Initialize alpha and beta
-    alpha = np.ones(K)
+    alpha = np.ones(K)/100
     N_unique = len(unique_words) #number of unique words
     beta = np.random.dirichlet(np.ones(N_unique),(K))#topics(K) x words(N)
     assert np.sum(np.sum(beta,axis=1)) >= K-1e-3,'Beta initialization failed %s'%(np.sum(np.sum(beta,axis=1)))
@@ -32,7 +32,7 @@ def variational_inference(**kwds):
     ## Initialize phi and gamma
     phi = np.ones((N,K))/K 
     phi_next = np.ones((N,K))/K
-    gamma = alpha #+ N/K #size = K
+    gamma = alpha + N/K #size = K
     gamma_next = alpha + N/K
     variational_free_enery = np.zeros(kwds['iterations'])
 
@@ -51,7 +51,9 @@ def variational_inference(**kwds):
         #print("Phi summation",np.sum(phi,axis=0),phi[0])
         assert int(gamma.shape[0]) == K,'Gamma shape changed to %s!'%gamma.shape
         variational_free_enery[iteration] = get_variational_free_energy(alpha,beta,gamma,phi,w_ind,N_unique)
-        print('Final',variational_free_enery[iteration])
+        if iteration % 100 == 0:
+            print('Final VI',variational_free_enery[iteration])
+    return variational_free_enery
     #plt.plot(range(kwds['iterations']),variational_free_enery)
     #plt.label('Variational Free Energy')
     #plt.xlabel('iterations')
@@ -95,7 +97,7 @@ def get_variational_free_energy(alpha,beta,gamma,phi,w_ind,V):
     #print("L3 ", l3)
     #print("L4 ", l4)
     #print("L5 ", l5)
-    return l1 + l2 + l3 + l5# + l5
+    return l1 + l2 + l3 + l5# + l4
 
 
 
